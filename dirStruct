@@ -1,0 +1,121 @@
+SQLify/
+├── README.md                           # Main project documentation
+├── package.json                        # Frontend dependencies and scripts
+├── package-lock.json                   # Frontend dependency lock file
+├── .env                                # Frontend environment variables
+├── .env.example                        # Frontend environment template
+├── .gitignore                          # Git ignore rules
+├── deployment-config.md                # Deployment instructions
+├── dirStruct                           # This file - project structure
+│
+├── public/                             # React public assets
+│   ├── index.html                      # Main HTML template
+│   ├── favicon.ico                     # Website favicon
+│   ├── manifest.json                   # PWA manifest
+│   └── robots.txt                      # SEO robots file
+│
+├── src/                                # Frontend source code
+│   ├── index.js                        # React app entry point
+│   ├── App.js                          # Main App component with routing
+│   ├── App.css                         # Global app styles
+│   ├── index.css                       # Global CSS styles
+│   ├── reportWebVitals.js              # Performance monitoring
+│   ├── setupTests.js                   # Test configuration
+│   ├── firebaseConfig.js               # Firebase authentication config
+│   ├── SessionContext.js               # Authentication context provider
+│   ├── PrivateRoute.js                 # Protected route component
+│   │
+│   ├── config/                         # Configuration files
+│   │   └── api.js                      # API endpoints configuration
+│   │
+│   ├── components/                     # React components
+│   │   ├── HomePage.jsx                # Landing page component
+│   │   ├── LoginPage.js                # User login component
+│   │   ├── RegisterPage.js             # User registration component
+│   │   ├── SQLEditorPage.js            # SQL query editor and generator
+│   │   ├── Schema.js                   # Database schema generator
+│   │   ├── SyntheticDataPage.jsx       # Synthetic data generation
+│   │   ├── GamePage.js                 # SQL learning game
+│   │   ├── AboutUsPage.js              # About page
+│   │   ├── EnhancedAnimation.js        # Background animations
+│   │   ├── OceanAnimationEffects.js   # Ocean animation effects
+│   │   ├── ChatbotIcon.jsx             # Chatbot interface icon
+│   │   └── SQLChatbot.jsx              # SQL chatbot component
+│   │
+│   ├── styles/                         # Component-specific styles
+│   │   ├── HomePage.css                # Homepage styles
+│   │   ├── SQLEditorPage.css           # SQL editor styles
+│   │   ├── Schema.css                  # Schema generator styles
+│   │   ├── SyntheticDataPage.css       # Synthetic data page styles
+│   │   ├── AuthForm.css                # Authentication form styles
+│   │   ├── game.css                    # Game page styles
+│   │   ├── chatbot.css                 # Chatbot styles
+│   │   ├── AboutUsPage.css             # About page styles
+│   │   └── EnhancedAnimation.css       # Animation styles
+│   │
+│   └── assets/                         # Static assets
+│       ├── logo.svg                    # App logo
+│       ├── bitmap.png                  # Bitmap images
+│       └── bitmapp.png                 # Additional bitmap images
+│
+├── backend/                            # Backend 1 - SQL Query Engine & Model Interface
+│   ├── app.py                          # Main Flask application (Port 5000)
+│   ├── model_handler.py                # AI model interface and query generation
+│   ├── logging_config.py               # Logging configuration
+│   ├── requirements.txt                # Python dependencies
+│   ├── .env                            # Backend 1 environment variables
+│   ├── .env.example                    # Backend 1 environment template
+│   ├── Procfile                        # Heroku deployment config
+│   ├── __pycache__/                    # Python cache files
+│   ├── logs/                           # Application logs
+│   └── venv/                           # Python virtual environment
+│
+└── src/backend/                        # Backend 2 - Schema Generation, OCR, Gamification
+    ├── app.py                          # Main Flask application (Port 5002)
+    ├── database.py                     # Database connection utilities
+    ├── gemini_service.py               # Google Gemini API integration
+    ├── require.txt                     # Python dependencies (typo - should be requirements.txt)
+    ├── .env                            # Backend 2 environment variables
+    ├── .env.example                    # Backend 2 environment template
+    ├── Procfile                        # Heroku deployment config
+    ├── __pycache__/                    # Python cache files
+    ├── pv/                             # Additional modules
+    └── venv/                           # Python virtual environment
+
+# Key Architecture Components:
+
+## Frontend (React.js - Port 3000)
+- Single Page Application with React Router
+- Firebase Authentication
+- Material-UI/Custom CSS styling
+- API integration with both backends
+- Real-time SQL editor with Monaco Editor
+
+## Backend 1 (Flask - Port 5000)
+- AI-powered SQL query generation
+- Natural language processing
+- Model management (Ollama/Akash integration)
+- Query explanation and conversation handling
+- Schema generation from natural language
+
+## Backend 2 (Flask - Port 5002)  
+- Database connectivity (MySQL, PostgreSQL, MongoDB, etc.)
+- SQL query execution
+- Synthetic data generation
+- Database schema extraction
+- OCR and document processing
+
+# Communication Flow:
+Frontend ←→ Backend 1 (SQL Generation)
+Frontend ←→ Backend 2 (Database Operations)
+Backend 1 ←→ Backend 2 (Schema Auto-fetch)
+
+# Deployment Structure:
+- Frontend: Vercel/Netlify
+- Backend 1: Heroku/Railway/DigitalOcean
+- Backend 2: Heroku/Railway/DigitalOcean
+
+# Environment Variables:
+- Frontend: REACT_APP_BACKEND_1_URL, REACT_APP_BACKEND_2_URL
+- Backend 1: SECONDARY_SERVICE_URL, FRONTEND_URL
+- Backend 2: BACKEND_1_URL, FRONTEND_URL
