@@ -110,13 +110,19 @@ def generate_schema():
         logger.info(f"Processing schema generation: {input_prompt[:50]}...")
         
         # Get the raw response from model handler
-        raw_response = model_handler.generate_schema(enhanced_prompt)
-        logger.debug(f"Raw model response: {raw_response}")
+        #raw_response = model_handler.generate_schema(enhanced_prompt)
+        #logger.debug(f"Raw model response: {raw_response}")
         
         # Process the response
         elapsed_time = time.time() - start_time
-        json_schema = extract_json_schema(raw_response)
-        
+        #json_schema = extract_json_schema(raw_response)
+        json_schema = generate_full_schema_two_phase(
+                        input_prompt,
+                        data.get("database_type", "mysql")
+                    )
+
+
+
         if json_schema:
             formatted_output = format_schema_for_display(json_schema)
             return jsonify({
@@ -977,7 +983,12 @@ def format_schema_for_display(schema):
                 constraints.append("PK")
             if column.get('foreign_key'):
                 fk = column['foreign_key']
-                constraints.append(f"FK → {fk['table']}.{fk['column']}")
+    
+                if isinstance(fk, dict):
+                    constraints.append(f"FK -> {fk.get('table')}.{fk.get('column')}")
+                elif isinstance(fk, str):
+                     constraints.append(f"FK -> {fk}")
+
             if column.get('unique'):
                 constraints.append("Unique")
             if column.get('default') is not None:
@@ -1021,6 +1032,93 @@ def extract_sql_query(response):
     
     # If no clear patterns match, return the raw response
     return response.strip()
+
+
+def build_table_list_prompt(user_prompt, database_type):
+    return f"""
+Return ONLY valid JSON.
+Task: From the description below, list database table names.
+
+Rules:
+- Max 6 tables
+- No columns
+- No explanations
+- No markdown
+
+Database: {database_type.upper()}
+
+Description:
+{user_prompt}
+
+Output format:
+{{
+  "tables": ["Table1", "Table2"]
+}}
+"""
+
+def generate_table_list(prompt):
+    raw = model_handler.generate_schema(prompt)
+    parsed = json.loads(raw)
+    return parsed["tables"]
+
+def build_table_schema_prompt(table_name, user_prompt, database_type):
+    return f"""
+Return ONLY valid JSON.
+
+Generate schema for table: {table_name}
+
+Rules:
+- Max 12 columns
+- Include: name, data_type, primary_key, foreign_key, unique, default
+- Use {database_type.upper()} data types
+- No explanations
+- No markdown
+
+Context:
+{user_prompt}
+
+Output format:
+{{
+  "name": "{table_name}",
+  "columns": [
+    {{
+      "name": "id",
+      "data_type": "INT",
+      "primary_key": true,
+      "foreign_key": null,
+      "unique": true,
+      "default": null
+    }}
+  ]
+}}
+"""
+def generate_table_schema(table_name, user_prompt, database_type):
+    prompt = build_table_schema_prompt(table_name, user_prompt, database_type)
+    raw = model_handler.generate_schema(prompt)
+    return json.loads(raw)
+
+def generate_full_schema_two_phase(user_prompt, database_type):
+    # Phase 1
+    table_prompt = build_table_list_prompt(user_prompt, database_type)
+    tables = generate_table_list(table_prompt)
+
+    final_schema = {"tables": []}
+
+    # Phase 2
+    for table in tables:
+        for attempt in range(2):  # silent retry
+            try:
+                table_schema = generate_table_schema(
+                    table, user_prompt, database_type
+                )
+                final_schema["tables"].append(table_schema)
+                break
+            except Exception:
+                if attempt == 1:
+                    raise Exception(f"Failed generating schema for table {table}")
+
+    return final_schema
+
 
 def validate_sql_syntax(sql_query, database_type="postgres"):
     """
